@@ -1,30 +1,31 @@
+// kuznechik.h
+// 04-Jan-15  Markku-Juhani O. Saarinen <mjos@iki.fi>
+
+#ifndef KUZNECHIK_H
+#define KUZNECHIK_H
+
 #include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
 
-#if _WIN32
-#include <windows.h>
-#else
-#include <pthread.h>
-#include <unistd.h>
+// my 128-bit datatype
+typedef union {	
+    uint64_t q[2];
+    uint8_t  b[16];
+} w128_t;
+
+// cipher context
+typedef struct {
+	w128_t k[10];		// round keys
+} kuz_key_t;
+
+// init lookup tables
+void kuz_init();
+
+// key setup
+void kuz_set_encrypt_key(kuz_key_t *subkeys, const uint8_t key[32]);	
+void kuz_set_decrypt_key(kuz_key_t *subkeys, const uint8_t key[32]);	
+
+// single-block ecp ops
+void kuz_encrypt_block(kuz_key_t *subkeys, void *x);
+void kuz_decrypt_block(kuz_key_t *subkeys, void *x);
+
 #endif
-
-#if _WIN32
-#define FFI_PLUGIN_EXPORT __declspec(dllexport)
-#else
-#define FFI_PLUGIN_EXPORT
-#endif
-
-// A very short-lived native function.
-//
-// For very short-lived functions, it is fine to call them on the main isolate.
-// They will block the Dart execution while running the native function, so
-// only do this for native functions which are guaranteed to be short-lived.
-FFI_PLUGIN_EXPORT intptr_t sum(intptr_t a, intptr_t b);
-
-// A longer lived native function, which occupies the thread calling it.
-//
-// Do not call these kind of native functions in the main isolate. They will
-// block Dart execution. This will cause dropped frames in Flutter applications.
-// Instead, call these native functions on a separate isolate.
-FFI_PLUGIN_EXPORT intptr_t sum_long_running(intptr_t a, intptr_t b);

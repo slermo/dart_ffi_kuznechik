@@ -27,44 +27,98 @@ class FfiKuznechikBindings {
           lookup)
       : _lookup = lookup;
 
-  /// A very short-lived native function.
-  ///
-  /// For very short-lived functions, it is fine to call them on the main isolate.
-  /// They will block the Dart execution while running the native function, so
-  /// only do this for native functions which are guaranteed to be short-lived.
-  int sum(
-    int a,
-    int b,
+  /// init lookup tables
+  void kuz_init() {
+    return _kuz_init();
+  }
+
+  late final _kuz_initPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function()>>('kuz_init');
+  late final _kuz_init = _kuz_initPtr.asFunction<void Function()>();
+
+  /// key setup
+  void kuz_set_encrypt_key(
+    ffi.Pointer<kuz_key_t> subkeys,
+    ffi.Pointer<ffi.Uint8> key,
   ) {
-    return _sum(
-      a,
-      b,
+    return _kuz_set_encrypt_key(
+      subkeys,
+      key,
     );
   }
 
-  late final _sumPtr =
-      _lookup<ffi.NativeFunction<ffi.IntPtr Function(ffi.IntPtr, ffi.IntPtr)>>(
-          'sum');
-  late final _sum = _sumPtr.asFunction<int Function(int, int)>();
+  late final _kuz_set_encrypt_keyPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<kuz_key_t>,
+              ffi.Pointer<ffi.Uint8>)>>('kuz_set_encrypt_key');
+  late final _kuz_set_encrypt_key = _kuz_set_encrypt_keyPtr.asFunction<
+      void Function(ffi.Pointer<kuz_key_t>, ffi.Pointer<ffi.Uint8>)>();
 
-  /// A longer lived native function, which occupies the thread calling it.
-  ///
-  /// Do not call these kind of native functions in the main isolate. They will
-  /// block Dart execution. This will cause dropped frames in Flutter applications.
-  /// Instead, call these native functions on a separate isolate.
-  int sum_long_running(
-    int a,
-    int b,
+  void kuz_set_decrypt_key(
+    ffi.Pointer<kuz_key_t> subkeys,
+    ffi.Pointer<ffi.Uint8> key,
   ) {
-    return _sum_long_running(
-      a,
-      b,
+    return _kuz_set_decrypt_key(
+      subkeys,
+      key,
     );
   }
 
-  late final _sum_long_runningPtr =
-      _lookup<ffi.NativeFunction<ffi.IntPtr Function(ffi.IntPtr, ffi.IntPtr)>>(
-          'sum_long_running');
-  late final _sum_long_running =
-      _sum_long_runningPtr.asFunction<int Function(int, int)>();
+  late final _kuz_set_decrypt_keyPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<kuz_key_t>,
+              ffi.Pointer<ffi.Uint8>)>>('kuz_set_decrypt_key');
+  late final _kuz_set_decrypt_key = _kuz_set_decrypt_keyPtr.asFunction<
+      void Function(ffi.Pointer<kuz_key_t>, ffi.Pointer<ffi.Uint8>)>();
+
+  /// single-block ecp ops
+  void kuz_encrypt_block(
+    ffi.Pointer<kuz_key_t> subkeys,
+    ffi.Pointer<ffi.Void> x,
+  ) {
+    return _kuz_encrypt_block(
+      subkeys,
+      x,
+    );
+  }
+
+  late final _kuz_encrypt_blockPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<kuz_key_t>,
+              ffi.Pointer<ffi.Void>)>>('kuz_encrypt_block');
+  late final _kuz_encrypt_block = _kuz_encrypt_blockPtr.asFunction<
+      void Function(ffi.Pointer<kuz_key_t>, ffi.Pointer<ffi.Void>)>();
+
+  void kuz_decrypt_block(
+    ffi.Pointer<kuz_key_t> subkeys,
+    ffi.Pointer<ffi.Void> x,
+  ) {
+    return _kuz_decrypt_block(
+      subkeys,
+      x,
+    );
+  }
+
+  late final _kuz_decrypt_blockPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<kuz_key_t>,
+              ffi.Pointer<ffi.Void>)>>('kuz_decrypt_block');
+  late final _kuz_decrypt_block = _kuz_decrypt_blockPtr.asFunction<
+      void Function(ffi.Pointer<kuz_key_t>, ffi.Pointer<ffi.Void>)>();
+}
+
+/// my 128-bit datatype
+final class w128_t extends ffi.Union {
+  @ffi.Array.multi([2])
+  external ffi.Array<ffi.Uint64> q;
+
+  @ffi.Array.multi([16])
+  external ffi.Array<ffi.Uint8> b;
+}
+
+/// cipher context
+final class kuz_key_t extends ffi.Struct {
+  /// round keys
+  @ffi.Array.multi([10])
+  external ffi.Array<w128_t> k;
 }

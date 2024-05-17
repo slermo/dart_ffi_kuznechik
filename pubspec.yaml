@@ -4,7 +4,7 @@ version: 0.0.1
 homepage:
 
 environment:
-  sdk: '>=3.3.4 <4.0.0'
+  sdk: '>=3.3.0 <4.0.0'
   flutter: '>=3.3.0'
 
 dependencies:
@@ -38,6 +38,11 @@ flutter:
   # Please refer to README.md for a detailed explanation.
   plugin:
     platforms:
+      # android:
+      #   package: com.kuznechik.hello
+      #   pluginClass: HelloPlugin
+      windows:
+        pluginClass: HelloPlugin
     # This FFI plugin project was generated without specifying any
     # platforms with the `--platform` argument. If you see the `some_platform` map below, remove it and
     # then add platforms following the instruction here:

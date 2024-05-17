@@ -16,3 +16,9 @@ subprojects {
 tasks.register("clean", Delete) {
     delete rootProject.buildDir
 }
+android {
+    // lines skipped
+    dependencies {
+        compileOnly rootProject.findProject(":url_launcher")
+    }
+}
